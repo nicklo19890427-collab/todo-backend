@@ -1,19 +1,23 @@
 package com.example.todo_app;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore; // 記得加這個 import
 
-@Entity // 1. 告訴 Spring 這是一個要存入資料庫的實體
-@Data   // 2. Lombok 魔法：自動幫我們產生 Getter, Setter, toString 等方法
+@Entity
+@Data
 public class Todo {
 
-    @Id // 3. 這是主鍵 (Primary Key)
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 4. ID 自動遞增 (Auto Increment)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;       // 待辦事項標題
-    private boolean completed;  // 是否完成
+    private String title;
+    private boolean completed;
+
+    // --- 新增這段：設定這筆 Todo 屬於哪個 User ---
+    @ManyToOne // 多對一：一個使用者可以有很多 Todo
+    @JoinColumn(name = "user_id") // 資料庫欄位名稱叫 user_id
+    @JsonIgnore // 重要！回傳 JSON 時，不要把使用者的密碼也一起回傳，避免無限迴圈
+    private User user;
 }

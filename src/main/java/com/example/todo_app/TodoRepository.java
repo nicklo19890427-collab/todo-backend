@@ -2,10 +2,10 @@ package com.example.todo_app;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.List; // 記得 import List
 
-// <Todo, Long> 的意思是：這個倉庫管理 "Todo" 資料，且它的主鍵 ID 是 "Long" 類型的
 @Repository
 public interface TodoRepository extends JpaRepository<Todo, Long> {
-    // 這裡裡面什麼都不用寫！
-    // Spring Boot 已經自動幫你變出了 save(), findAll(), findById(), delete() 等方法
+    // 新增功能：找出「某個特定使用者」的所有待辦事項
+    List<Todo> findByUser(User user);
 }
