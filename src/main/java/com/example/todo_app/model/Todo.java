@@ -1,7 +1,8 @@
-package com.example.todo_app;
+package com.example.todo_app.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import com.fasterxml.jackson.annotation.JsonIgnore; // 記得加這個 import
 
 @Entity
@@ -20,4 +21,18 @@ public class Todo {
     @JoinColumn(name = "user_id") // 資料庫欄位名稱叫 user_id
     @JsonIgnore // 重要！回傳 JSON 時，不要把使用者的密碼也一起回傳，避免無限迴圈
     private User user;
+
+    // ✨ 新增這段：關聯 Category
+    @ManyToOne
+    @JoinColumn(name = "category_id") // 允許 null (代表未分類)
+    private Category category;
+
+    // ✨ Getter / Setter
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }

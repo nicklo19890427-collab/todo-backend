@@ -1,4 +1,4 @@
-package com.example.todo_app;
+package com.example.todo_app.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

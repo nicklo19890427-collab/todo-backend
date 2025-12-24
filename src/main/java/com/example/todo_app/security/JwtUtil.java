@@ -1,4 +1,4 @@
-package com.example.todo_app;
+package com.example.todo_app.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

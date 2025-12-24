@@ -1,9 +1,15 @@
-package com.example.todo_app;
+package com.example.todo_app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.todo_app.model.Todo;
+import com.example.todo_app.model.User;
+
+import com.example.todo_app.repository.TodoRepository;
+import com.example.todo_app.repository.UserRepository;
 
 import java.util.List;
 

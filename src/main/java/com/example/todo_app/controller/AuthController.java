@@ -1,14 +1,20 @@
-package com.example.todo_app;
+package com.example.todo_app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.todo_app.model.User;
+import com.example.todo_app.security.JwtUtil;
+
+import com.example.todo_app.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     @Autowired
