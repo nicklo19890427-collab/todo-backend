@@ -2,11 +2,12 @@ package com.example.todo_app.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
-import com.fasterxml.jackson.annotation.JsonIgnore; // 記得加這個 import
+import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Data
+@Table(name = "todos") // 👈 記得補回這個，對應資料庫表格名稱
+@Data // 👈 Lombok 會自動幫你產生 Getter/Setter，不用自己寫
 public class Todo {
 
     @Id
@@ -16,23 +17,25 @@ public class Todo {
     private String title;
     private boolean completed;
 
-    // --- 新增這段：設定這筆 Todo 屬於哪個 User ---
-    @ManyToOne // 多對一：一個使用者可以有很多 Todo
-    @JoinColumn(name = "user_id") // 資料庫欄位名稱叫 user_id
-    @JsonIgnore // 重要！回傳 JSON 時，不要把使用者的密碼也一起回傳，避免無限迴圈
+    // --- 關聯 User ---
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
-    // ✨ 新增這段：關聯 Category
+    // --- 關聯 Category ---
     @ManyToOne
-    @JoinColumn(name = "category_id") // 允許 null (代表未分類)
+    @JoinColumn(name = "category_id")
     private Category category;
 
-    // ✨ Getter / Setter
-    public Category getCategory() {
-        return category;
-    }
+    // --- 新增欄位 ---
 
-    public void setCategory(Category category) {
-        this.category = category;
-    }
+    // 優先級 (預設 LOW)
+    @Column(nullable = false)
+    private String priority = "LOW"; 
+
+    // 截止日期
+    private LocalDate dueDate;
+
+    // 🎉 沒了！Getter 和 Setter 都不用寫，Lombok 幫你搞定。
 }
