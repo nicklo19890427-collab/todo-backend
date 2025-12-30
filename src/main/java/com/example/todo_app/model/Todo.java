@@ -2,7 +2,7 @@ package com.example.todo_app.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDate;
+import java.time.LocalDateTime; // 👈 1. 改用 LocalDateTime
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -35,7 +35,8 @@ public class Todo {
     private String priority = "LOW"; 
 
     // 截止日期
-    private LocalDate dueDate;
+    // 👈 2. 修改型別：LocalDate -> LocalDateTime
+    private LocalDateTime dueDate;
 
     // 🎉 沒了！Getter 和 Setter 都不用寫，Lombok 幫你搞定。
 }
