@@ -76,31 +76,35 @@ public class TodoController {
         return "Todo deleted";
     }
 
-    // ✨ 新增：搜尋接口
-    // GET /api/todos/search?categoryId=1&priority=HIGH&date=2025-12-25
+    // ✨ 修改搜尋接口：加入 keyword 參數
     @GetMapping("/search")
     public List<Todo> searchTodos(
+            @RequestParam(required = false) String keyword, // 👈 新增
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String priority,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
         
         User currentUser = getCurrentUser();
         
-        // 處理日期範圍：如果使用者選了一天，我們就找那一天 00:00 ~ 23:59 的所有任務
         LocalDateTime start = null;
         LocalDateTime end = null;
         
         if (date != null) {
             LocalDate localDate = date.toLocalDate();
-            start = localDate.atStartOfDay();      // 2025-12-25 00:00:00
-            end = localDate.atTime(LocalTime.MAX); // 2025-12-25 23:59:59.999
+            start = localDate.atStartOfDay();
+            end = localDate.atTime(LocalTime.MAX);
         }
 
-        // 如果 priority 是空字串或 "ALL"，視為 null (不篩選)
         if (priority != null && (priority.isEmpty() || priority.equals("ALL"))) {
             priority = null;
         }
 
-        return todoRepository.search(currentUser.getId(), categoryId, priority, start, end);
+        // 處理 keyword：如果是空字串就轉成 null
+        if (keyword != null && keyword.trim().isEmpty()) {
+            keyword = null;
+        }
+
+        // 呼叫 Repository (記得傳入 keyword)
+        return todoRepository.search(currentUser.getId(), keyword, categoryId, priority, start, end);
     }
 }

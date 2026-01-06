@@ -20,11 +20,13 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     // ✨ 新增：智慧搜尋查詢
     // 邏輯：如果傳入的參數是 NULL，該條件就會被忽略 (比如 categoryId IS NULL，就代表不限分類)
     @Query("SELECT t FROM Todo t WHERE t.user.id = :userId " +
+        "AND (:keyword IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) " + // 👈 新增這行 (忽略大小寫)
         "AND (:categoryId IS NULL OR t.category.id = :categoryId) " +
         "AND (:priority IS NULL OR t.priority = :priority) " +
         "AND (:start IS NULL OR t.dueDate >= :start) " +
         "AND (:end IS NULL OR t.dueDate <= :end)")
     List<Todo> search(@Param("userId") Long userId, 
+                    @Param("keyword") String keyword,
                     @Param("categoryId") Long categoryId, 
                     @Param("priority") String priority, 
                     @Param("start") LocalDateTime start, 
