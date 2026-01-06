@@ -1,5 +1,6 @@
 package com.example.todo_app.repository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,5 +31,6 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
                     @Param("categoryId") Long categoryId, 
                     @Param("priority") String priority, 
                     @Param("start") LocalDateTime start, 
-                    @Param("end") LocalDateTime end);
+                    @Param("end") LocalDateTime end,
+                    Sort sort);
 }

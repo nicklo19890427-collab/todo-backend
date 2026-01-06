@@ -1,6 +1,7 @@
 package com.example.todo_app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-
+import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/todos")
 public class TodoController {
@@ -76,13 +77,15 @@ public class TodoController {
         return "Todo deleted";
     }
 
-    // ✨ 修改搜尋接口：加入 keyword 參數
     @GetMapping("/search")
     public List<Todo> searchTodos(
-            @RequestParam(required = false) String keyword, // 👈 新增
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String priority,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date,
+            // ✨ 新增排序參數 (預設依 priority 排序)
+            @RequestParam(defaultValue = "priority") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
         
         User currentUser = getCurrentUser();
         
@@ -98,13 +101,35 @@ public class TodoController {
         if (priority != null && (priority.isEmpty() || priority.equals("ALL"))) {
             priority = null;
         }
-
-        // 處理 keyword：如果是空字串就轉成 null
         if (keyword != null && keyword.trim().isEmpty()) {
             keyword = null;
         }
 
-        // 呼叫 Repository (記得傳入 keyword)
-        return todoRepository.search(currentUser.getId(), keyword, categoryId, priority, start, end);
+        // ✨ 處理排序邏輯
+        if ("priority".equals(sortBy)) {
+            // 如果是依優先級排序，先用 ID 排序取出資料，再於記憶體中排序
+            // 因為 DB 中的 HIGH/MEDIUM/LOW 字母順序不符合邏輯 (H < L < M ? 不對)
+            List<Todo> todos = todoRepository.search(currentUser.getId(), keyword, categoryId, priority, start, end, Sort.by(Sort.Direction.DESC, "id"));
+            
+            return todos.stream().sorted((t1, t2) -> {
+                int p1 = getPriorityValue(t1.getPriority());
+                int p2 = getPriorityValue(t2.getPriority());
+                // desc: 高 -> 低 (3 -> 1)
+                return "desc".equalsIgnoreCase(direction) ? Integer.compare(p2, p1) : Integer.compare(p1, p2);
+            }).collect(Collectors.toList());
+        } else {
+            // 其他欄位 (如 dueDate, id) 直接交給資料庫排序
+            Sort.Direction dir = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+            Sort sort = Sort.by(dir, sortBy);
+            return todoRepository.search(currentUser.getId(), keyword, categoryId, priority, start, end, sort);
+        }
+    }
+
+    // 輔助方法：將優先級字串轉為數字 (數字越大優先級越高)
+    private int getPriorityValue(String priority) {
+        if ("HIGH".equals(priority)) return 3;
+        if ("MEDIUM".equals(priority)) return 2;
+        if ("LOW".equals(priority)) return 1;
+        return 0;
     }
 }
